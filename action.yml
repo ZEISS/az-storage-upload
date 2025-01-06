@@ -1,0 +1,15 @@
+name: GitHub Action Template
+description: This is a GitHub Action using Go
+branding:
+  icon: cloud
+  color: orange
+inputs:
+  name:
+    description: ""
+    required: true
+outputs:
+  id:
+    description: An example id output.
+runs:
+  using: node20
+  main: shim/index.js

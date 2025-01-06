@@ -1,0 +1,66 @@
+before:
+  hooks:
+    - go mod tidy
+
+builds:
+   -
+    id: main
+    no_unique_dist_dir: true
+    binary: main-{{ .Arch }}-{{ .Os }}
+    goos:
+      - darwin
+      - linux
+      - windows
+    goarch:
+      - 386
+      - amd64
+      - arm
+      - arm64
+    goarm:
+      - 7
+    ignore:
+        - goos: darwin
+          goarch: 386
+        - goos: windows
+          goarch: arm
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+
+archives:
+  - format: binary
+    name_template: "{{ .Binary }}"
+    allow_different_binary_count: true
+
+release:
+  header: |
+    ## Changelog ({{ .Date }})
+
+    Welcome to this new release! We hope you enjoy the changes we've made.
+
+changelog:
+  groups:
+    - title: Features
+      regexp: '^.*?feat(\([[:word:]]+\))??!?:.+$'
+      order: 0
+    - title: "Bug fixes"
+      regexp: '^.*?bug(\([[:word:]]+\))??!?:.+$'
+      order: 1
+    - title: Others
+      order: 999
+  sort: asc
+  filters:
+    exclude:
+      - "^docs:"
+      - typo
+      - (?i)foo
+
+gomod:
+  proxy: true
+
+checksum:
+  name_template: 'checksums.txt'
+
+snapshot:
+  name_template: "{{.Tag}}"
