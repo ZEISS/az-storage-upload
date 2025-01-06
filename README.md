@@ -1,26 +1,40 @@
-# Template GitHub Action
+# Azure Storage Upload Action
 
 [![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/ZEISS/template-action?quickstart=1)
 
-> This is a GitHub Template Repository. You can use the green button to create a new repository based on this template. Read more about [GitHub Template Repositories](https://help.github.com/en/github/creating-cloning-and-archiving-repositories/creating-a-repository-from-a-template).
+## Example
 
-## Get Started
-
-This template supports `Makefile` to run tooling.
-
-> `make` is choosen as it is available on most systems.
-
-## Build
-
-```bash
-make
+```yaml
+name: Upload to Azure Storage
+on:
+  push:
+    branches:
+      - main
+jobs:
+  upload:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      - uses: zeiss/az-storage-upload@main
+        with:
+          path: ./dist
+          container_name: $www
+          account_url: ${{ secrets.AccountUrl }
 ```
 
-Commit the version change and artifacts in the repository.
+## Inputs
 
-```bash
-git tag -a v1.0.0 -m "Release v1.0.0"
-```
+ Key                  | Value                                                                      |
+|---------------------|----------------------------------------------------------------------------|
+| `container_name`    | The name of the storage account container these assets will be uploaded to |
+| `path`              | The path of the files that are uploaded                                    |
+| `account_url`       | The URL of the storage account                                             |
+
 
 ## License
 

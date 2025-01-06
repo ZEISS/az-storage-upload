@@ -1,15 +1,22 @@
-name: GitHub Action Template
-description: This is a GitHub Action using Go
+name: Github Action for Azure Storage
+description: |
+  Uploads a file to an Azure Storage Account
 branding:
   icon: cloud
-  color: orange
+  color: blue
 inputs:
-  name:
-    description: ""
+  path:
+    description: "The path to upload to the storage account"
+    required: true
+  container_name:
+    description: "The storage account container to upload to"
+    required: true
+  account_url:
+    description: "The storage account URL"
     required: true
 outputs:
-  id:
-    description: An example id output.
+  success:
+    description: "Whether the upload was successful"
 runs:
   using: node20
   main: shim/index.js
