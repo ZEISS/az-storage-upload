@@ -48,3 +48,22 @@ jobs:
           go-version-file: ./tools/go.mod
           check-latest: true
       - run: make lint
+  
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      checks: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: ./tools/go.mod
+          check-latest: true
+      - run: make build
+      - uses: peter-evans/create-pull-request@v7
+      - if: ${{ steps.cpr.outputs.pull-request-number }}
+        run: |
+          echo "Pull Request Number - ${{ steps.cpr.outputs.pull-request-number }}"
+          echo "Pull Request URL - ${{ steps.cpr.outputs.pull-request-url }}"
+
