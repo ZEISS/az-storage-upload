@@ -55,6 +55,7 @@ jobs:
           check-latest: true
       - run: make build
       - uses: peter-evans/create-pull-request@v7
+        id: cpr
         with:
           token: ${{ secrets.GH_PAT }}
           commit-message: "Build artifacts"
