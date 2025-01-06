@@ -47,7 +47,7 @@ jobs:
       - run: make lint
   
   build:
-    if: ${{ github.actor != 'dependabot[bot]' }}
+    if: github.event.pull_request.merged != 'true'
     runs-on: ubuntu-latest
     permissions:
       checks: write
