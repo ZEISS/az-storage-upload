@@ -63,6 +63,14 @@ jobs:
           check-latest: true
       - run: make build
       - uses: peter-evans/create-pull-request@v7
+        with:
+          token: ${{ secrets.GH_PAT }}
+          commit-message: "Build artifacts"
+          title: "Build artifacts"
+          branch: "build-artifacts"
+          base: "main"
+          labels: "build"
+          draft: false
       - if: ${{ steps.cpr.outputs.pull-request-number }}
         run: |
           echo "Pull Request Number - ${{ steps.cpr.outputs.pull-request-number }}"
