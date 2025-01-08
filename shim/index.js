@@ -18,11 +18,9 @@ function chooseBinary() {
 
 const os = require('os');
 const childProcess = require('child_process');
+const resolve = require('path').resolve
 const platform = os.platform()
 const arch = os.arch()
 const binary = chooseBinary()
-const mainScript = `${__dirname}/dist/${binary}`
-
-console.log(`running on ${platform} ${arch}`)
-
+const mainScript = resolve(`${__dirname}/../dist/${binary}`)
 const spawnSyncReturns = childProcess.spawnSync(mainScript, { stdio: 'inherit' })
