@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"io"
 	"io/fs"
 	"net/http"
@@ -31,7 +32,7 @@ func GetContentType(seeker io.ReadSeeker) (string, error) {
 	}
 
 	bytesRead, err := seeker.Read(buff)
-	if err != nil && err != io.EOF {
+	if utilx.NotEmpty(err) && !errors.Is(err, io.EOF) {
 		return "", err
 	}
 
