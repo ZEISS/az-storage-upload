@@ -2,9 +2,8 @@ package main
 
 import (
 	"context"
-	"errors"
-	"io"
 	"io/fs"
+	"mime"
 	"os"
 	"path/filepath"
 
@@ -13,41 +12,50 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/azidentity"
 	"github.com/Azure/azure-sdk-for-go/sdk/storage/azblob"
 	"github.com/Azure/azure-sdk-for-go/sdk/storage/azblob/blob"
-	"github.com/h2non/filetype"
 	"github.com/sethvargo/go-githubactions"
 	"github.com/zeiss/pkg/cast"
 	"github.com/zeiss/pkg/utilx"
 )
 
 // GetContentType ...
-func GetContentType(seeker io.ReadSeeker) (string, error) {
-	// At most the first 512 bytes of data are used:
-	// https://golang.org/src/net/http/sniff.go?s=646:688#L11
-	buff := make([]byte, 512)
-
-	_, err := seeker.Seek(0, io.SeekStart)
-	if err != nil {
-		return "", err
+func GetContentType(file string) string {
+	ext := filepath.Ext(file)
+	switch ext {
+	case ".htm", ".html":
+		return "text/html"
+	case ".css":
+		return "text/css"
+	case ".js":
+		return "application/javascript"
+	default:
+		return mime.TypeByExtension(ext)
 	}
 
-	bytesRead, err := seeker.Read(buff)
-	if utilx.NotEmpty(err) && !errors.Is(err, io.EOF) {
-		return "", err
-	}
+	// // At most the first 512 bytes of data are used:
+	// // https://golang.org/src/net/http/sniff.go?s=646:688#L11
+	// buff := make([]byte, 512)
 
-	// Slice to remove fill-up zero values which cause a wrong content type detection in the next step
-	buff = buff[:bytesRead]
+	// _, err := seeker.Seek(0, io.SeekStart)
+	// if err != nil {
+	// 	return "", err
+	// }
 
-	kind, err := filetype.Match(buff)
-	if err != nil && !errors.Is(err, filetype.ErrEmptyBuffer) {
-		return "", err
-	}
+	// bytesRead, err := seeker.Read(buff)
+	// if utilx.NotEmpty(err) && !errors.Is(err, io.EOF) {
+	// 	return "", err
+	// }
 
-	if errors.Is(err, filetype.ErrEmptyBuffer) {
-		return "application/octet-stream", nil
-	}
+	// // Slice to remove fill-up zero values which cause a wrong content type detection in the next step
+	// buff = buff[:bytesRead]
 
-	return kind.MIME.Type, nil
+	// // Special override for unknown file types
+	// ext := filepath.Ext(file)
+	// switch  ext {
+	// 	case ".css":
+	// 		return "text/css", nil
+	// }
+
+	// return http.DetectContentType(buff), nil
 }
 
 // nolint:gocyclo
@@ -90,18 +98,15 @@ func main() {
 			return err
 		}
 
-		kind, err := GetContentType(file)
-		if err != nil {
-			return err
-		}
+		ct := GetContentType(path)
 
 		opts := &azblob.UploadFileOptions{
 			HTTPHeaders: &blob.HTTPHeaders{
-				BlobContentType: cast.Ptr(kind),
+				BlobContentType: cast.Ptr(ct),
 			},
 		}
 
-		githubactions.Infof("uploading %s (%s)", p, kind)
+		githubactions.Infof("uploading %s (%s)", p, ct)
 
 		_, err = client.UploadFile(ctx, cfg.ContainerName, p, file, opts)
 		if err != nil {
