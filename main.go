@@ -82,20 +82,21 @@ func main() {
 			return err
 		}
 
-		githubactions.Infof("uploading %s", p)
-
 		ct, err := GetContentType(file)
 		if err != nil {
 			return err
 		}
 
 		cts := strings.SplitN(ct, ";", 2)
+		c := strings.TrimSpace(cts[0])
 
 		opts := &azblob.UploadFileOptions{
 			HTTPHeaders: &blob.HTTPHeaders{
-				BlobContentType: cast.Ptr(strings.TrimSpace(cts[0])),
+				BlobContentType: cast.Ptr(c),
 			},
 		}
+
+		githubactions.Infof("uploading %s (%s)", p, c)
 
 		_, err = client.UploadFile(ctx, cfg.ContainerName, p, file, opts)
 		if err != nil {
