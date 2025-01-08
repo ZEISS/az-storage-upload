@@ -2,22 +2,44 @@ package main
 
 import (
 	"context"
-	"crypto/md5"
-	"encoding/hex"
+	"io"
 	"io/fs"
 	"net/http"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"template/internal/cfg"
 
 	"github.com/Azure/azure-sdk-for-go/sdk/azidentity"
 	"github.com/Azure/azure-sdk-for-go/sdk/storage/azblob"
+	"github.com/Azure/azure-sdk-for-go/sdk/storage/azblob/blob"
 	"github.com/sethvargo/go-githubactions"
 	"github.com/zeiss/pkg/cast"
-	"github.com/zeiss/pkg/conv"
 	"github.com/zeiss/pkg/utilx"
 )
+
+// GetContentType ...
+func GetContentType(seeker io.ReadSeeker) (string, error) {
+	// At most the first 512 bytes of data are used:
+	// https://golang.org/src/net/http/sniff.go?s=646:688#L11
+	buff := make([]byte, 512)
+
+	_, err := seeker.Seek(0, io.SeekStart)
+	if err != nil {
+		return "", err
+	}
+
+	bytesRead, err := seeker.Read(buff)
+	if err != nil && err != io.EOF {
+		return "", err
+	}
+
+	// Slice to remove fill-up zero values which cause a wrong content type detection in the next step
+	buff = buff[:bytesRead]
+
+	return http.DetectContentType(buff), nil
+}
 
 // nolint:gocyclo
 func main() {
@@ -54,11 +76,6 @@ func main() {
 		}
 		defer file.Close()
 
-		fileinfo, err := file.Stat()
-		if err != nil {
-			return err
-		}
-
 		p, err := filepath.Rel(root, path)
 		if err != nil {
 			return err
@@ -66,26 +83,20 @@ func main() {
 
 		githubactions.Infof("uploading %s", p)
 
-		filesize := fileinfo.Size()
-		buffer := make([]byte, filesize)
-
-		_, err = file.Read(buffer)
+		ct, err := GetContentType(file)
 		if err != nil {
 			return err
 		}
 
-		hash := md5.Sum(buffer)
+		cts := strings.SplitN(ct, ";", 2)
 
-		ct := http.DetectContentType(buffer)
 		opts := &azblob.UploadFileOptions{
-			Metadata: map[string]*string{
-				"Content-Type":   cast.Ptr(ct),
-				"Content-MD5":    cast.Ptr(hex.EncodeToString(hash[:])),
-				"Content-Length": cast.Ptr(conv.String(filesize)),
+			HTTPHeaders: &blob.HTTPHeaders{
+				BlobContentType: cast.Ptr(strings.TrimSpace(cts[0])),
 			},
 		}
 
-		_, err = client.UploadBuffer(ctx, cfg.ContainerName, p, buffer, opts)
+		_, err = client.UploadFile(ctx, cfg.ContainerName, p, file, opts)
 		if err != nil {
 			return err
 		}
