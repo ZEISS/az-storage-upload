@@ -5,16 +5,15 @@ import (
 	"errors"
 	"io"
 	"io/fs"
-	"net/http"
 	"os"
 	"path/filepath"
-	"strings"
 
 	"template/internal/cfg"
 
 	"github.com/Azure/azure-sdk-for-go/sdk/azidentity"
 	"github.com/Azure/azure-sdk-for-go/sdk/storage/azblob"
 	"github.com/Azure/azure-sdk-for-go/sdk/storage/azblob/blob"
+	"github.com/h2non/filetype"
 	"github.com/sethvargo/go-githubactions"
 	"github.com/zeiss/pkg/cast"
 	"github.com/zeiss/pkg/utilx"
@@ -39,7 +38,16 @@ func GetContentType(seeker io.ReadSeeker) (string, error) {
 	// Slice to remove fill-up zero values which cause a wrong content type detection in the next step
 	buff = buff[:bytesRead]
 
-	return http.DetectContentType(buff), nil
+	kind, err := filetype.Match(buff)
+	if err != nil && !errors.Is(err, filetype.ErrEmptyBuffer) {
+		return "", err
+	}
+
+	if errors.Is(err, filetype.ErrEmptyBuffer) {
+		return "application/octet-stream", nil
+	}
+
+	return kind.MIME.Type, nil
 }
 
 // nolint:gocyclo
@@ -82,21 +90,18 @@ func main() {
 			return err
 		}
 
-		ct, err := GetContentType(file)
+		kind, err := GetContentType(file)
 		if err != nil {
 			return err
 		}
 
-		cts := strings.SplitN(ct, ";", 2)
-		c := strings.TrimSpace(cts[0])
-
 		opts := &azblob.UploadFileOptions{
 			HTTPHeaders: &blob.HTTPHeaders{
-				BlobContentType: cast.Ptr(c),
+				BlobContentType: cast.Ptr(kind),
 			},
 		}
 
-		githubactions.Infof("uploading %s (%s)", p, c)
+		githubactions.Infof("uploading %s (%s)", p, kind)
 
 		_, err = client.UploadFile(ctx, cfg.ContainerName, p, file, opts)
 		if err != nil {
