@@ -2,7 +2,10 @@ package main
 
 import (
 	"context"
+	"crypto/md5"
+	"encoding/hex"
 	"io/fs"
+	"net/http"
 	"os"
 	"path/filepath"
 
@@ -11,6 +14,8 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/azidentity"
 	"github.com/Azure/azure-sdk-for-go/sdk/storage/azblob"
 	"github.com/sethvargo/go-githubactions"
+	"github.com/zeiss/pkg/cast"
+	"github.com/zeiss/pkg/conv"
 	"github.com/zeiss/pkg/utilx"
 )
 
@@ -48,6 +53,11 @@ func main() {
 		}
 		defer file.Close()
 
+		fileinfo, err := file.Stat()
+		if err != nil {
+			return err
+		}
+
 		p, err := filepath.Rel(root, path)
 		if err != nil {
 			return err
@@ -55,7 +65,26 @@ func main() {
 
 		githubactions.Infof("uploading %s", p)
 
-		_, err = client.UploadFile(ctx, cfg.ContainerName, p, file, nil)
+		filesize := fileinfo.Size()
+		buffer := make([]byte, filesize)
+
+		_, err = file.Read(buffer)
+		if err != nil {
+			return err
+		}
+
+		hash := md5.Sum(buffer)
+
+		ct := http.DetectContentType(buffer)
+		opts := &azblob.UploadFileOptions{
+			Metadata: map[string]*string{
+				"Content-Type":   cast.Ptr(ct),
+				"Content-MD5":    cast.Ptr(hex.EncodeToString(hash[:])),
+				"Content-Length": cast.Ptr(conv.String(filesize)),
+			},
+		}
+
+		_, err = client.UploadBuffer(ctx, cfg.ContainerName, p, buffer, opts)
 		if err != nil {
 			return err
 		}
