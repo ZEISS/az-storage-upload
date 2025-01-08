@@ -185,6 +185,16 @@ issues:
       linters:
         - gosec
         - gas
+    
+    - text: "G501:"
+      linters:
+        - gosec
+        - gas
+
+    - text: "G401:"
+      linters:
+        - gosec
+        - gas
 
   # Independently from option `exclude` we use default exclude patterns,
   # it can be disabled by this option. To list all

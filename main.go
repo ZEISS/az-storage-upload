@@ -19,6 +19,7 @@ import (
 	"github.com/zeiss/pkg/utilx"
 )
 
+// nolint:gocyclo
 func main() {
 	ctx := context.Background()
 
