@@ -16,6 +16,7 @@ function chooseBinary() {
   }
 }
 const os = require('os');
+const childProcess = require('child_process');
 const platform = os.platform()
 const arch = os.arch()
 const binary = chooseBinary()
