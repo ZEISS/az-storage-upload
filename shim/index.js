@@ -15,6 +15,9 @@ function chooseBinary() {
     return `main-amd64-darwin`
   }
 }
+
+console.log(`running on ${platform} ${arch}`)
+
 const os = require('os');
 const childProcess = require('child_process');
 const platform = os.platform()
