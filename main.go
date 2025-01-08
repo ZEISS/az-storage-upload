@@ -30,32 +30,6 @@ func GetContentType(file string) string {
 	default:
 		return mime.TypeByExtension(ext)
 	}
-
-	// // At most the first 512 bytes of data are used:
-	// // https://golang.org/src/net/http/sniff.go?s=646:688#L11
-	// buff := make([]byte, 512)
-
-	// _, err := seeker.Seek(0, io.SeekStart)
-	// if err != nil {
-	// 	return "", err
-	// }
-
-	// bytesRead, err := seeker.Read(buff)
-	// if utilx.NotEmpty(err) && !errors.Is(err, io.EOF) {
-	// 	return "", err
-	// }
-
-	// // Slice to remove fill-up zero values which cause a wrong content type detection in the next step
-	// buff = buff[:bytesRead]
-
-	// // Special override for unknown file types
-	// ext := filepath.Ext(file)
-	// switch  ext {
-	// 	case ".css":
-	// 		return "text/css", nil
-	// }
-
-	// return http.DetectContentType(buff), nil
 }
 
 // nolint:gocyclo
