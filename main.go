@@ -93,6 +93,5 @@ func main() {
 		githubactions.Fatalf("error: %s", err)
 	}
 
-	githubactions.SetOutput("success", "true")
 	githubactions.Infof("upload successful")
 }
