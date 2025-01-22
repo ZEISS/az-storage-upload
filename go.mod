@@ -1,7 +1,6 @@
 module template
 
 go 1.22.1
-
 toolchain go1.23.4
 
 require (
@@ -9,7 +8,7 @@ require (
 	github.com/Azure/azure-sdk-for-go/sdk/storage/azblob v1.5.0
 	github.com/sethvargo/go-githubactions v1.3.0
 	github.com/stretchr/testify v1.10.0
-	github.com/zeiss/pkg v0.1.19
+	github.com/zeiss/pkg v0.1.20
 )
 
 require (
