@@ -34,8 +34,8 @@ github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 h1:Jamvg5psRI
 github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/rogpeppe/go-internal v1.13.1 h1:KvO1DLK/DRN07sQ1LQKScxyZJuNnedQ5/wKSR38lUII=
 github.com/rogpeppe/go-internal v1.13.1/go.mod h1:uMEvuHeurkdAXX61udpOXGD/AzZDWNMNyH2VO9fmH0o=
-github.com/sethvargo/go-githubactions v1.3.1 h1:rlwwLRUaunWLQ1aN2o5Y+3s0xhaTC30YObCnilRx448=
-github.com/sethvargo/go-githubactions v1.3.1/go.mod h1:7/4WeHgYfSz9U5vwuToCK9KPnELVHAhGtRwLREOQV80=
+github.com/sethvargo/go-githubactions v1.3.2 h1:gkibLr/QjosgNWoCf1V58rTMRZw7xZtSB7dY4atbl1Y=
+github.com/sethvargo/go-githubactions v1.3.2/go.mod h1:7/4WeHgYfSz9U5vwuToCK9KPnELVHAhGtRwLREOQV80=
 github.com/stretchr/testify v1.11.1 h1:7s2iGBzp5EwR7/aIZr8ao5+dra3wiQyKjjFuvgVKu7U=
 github.com/stretchr/testify v1.11.1/go.mod h1:wZwfW3scLgRK+23gO65QZefKpKQRnfz6sD981Nm4B6U=
 github.com/zeiss/pkg v0.1.23 h1:y7Tv1j2ZdD1bNWbPYtIPHUl5FGD2tuyVPe0a7sIDJgQ=
