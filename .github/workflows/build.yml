@@ -54,7 +54,7 @@ jobs:
           go-version-file: ./tools/go.mod
           check-latest: true
       - run: make build
-      - uses: peter-evans/create-pull-request@v7
+      - uses: peter-evans/create-pull-request@v8
         id: cpr
         with:
           token: ${{ secrets.GH_PAT }}
